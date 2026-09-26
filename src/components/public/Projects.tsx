@@ -15,24 +15,15 @@ export const Projects: React.FC = () => {
     projectsService.getProjects(true).then(setProjects);
   }, []);
 
-  const filterTabs = [
-    'Todos',
-    'Full Stack',
-    'IA',
-    'Automatización',
-    'IoT',
-    'Redes',
-    'Investigación',
-  ];
+  // Extrae dinámicamente solo las categorías de los proyectos que realmente existen
+  const dynamicCategories = Array.from(
+    new Set(projects.map((p) => p.category).filter(Boolean))
+  ).filter((c) => !['IoT', 'Redes', 'Investigación'].includes(c));
+
+  const filterTabs = ['Todos', ...dynamicCategories];
 
   const filteredProjects = projects.filter((proj) => {
     if (activeFilter === 'Todos') return true;
-    if (activeFilter === 'Automatización') {
-      return proj.category === 'Automatización' || proj.category === 'IA / Automatización';
-    }
-    if (activeFilter === 'IA') {
-      return proj.category === 'IA' || proj.category === 'IA / Automatización';
-    }
     return proj.category === activeFilter;
   });
 

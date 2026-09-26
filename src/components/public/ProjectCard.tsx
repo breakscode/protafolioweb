@@ -12,11 +12,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) =
   const getCategoryColor = (cat: Project['category']) => {
     switch (cat) {
       case 'Full Stack': return 'primary';
+      case 'Frontend': return 'cyan';
+      case 'Backend': return 'indigo';
       case 'IA': return 'purple';
       case 'Automatización': 
       case 'IA / Automatización': return 'warning';
-      case 'IoT': return 'success';
-      case 'Redes': return 'neutral';
       default: return 'primary';
     }
   };

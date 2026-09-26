@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Project } from '../../types';
+import { Project, PROJECT_CATEGORIES } from '../../types';
 import { Modal } from '../../components/ui/Modal';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -173,15 +173,10 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
             label="Categoría *"
             value={formData.category || 'Full Stack'}
             onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-            options={[
-              { value: 'Full Stack', label: 'Full Stack' },
-              { value: 'IA', label: 'IA' },
-              { value: 'Automatización', label: 'Automatización' },
-              { value: 'IA / Automatización', label: 'IA / Automatización' },
-              { value: 'IoT', label: 'IoT' },
-              { value: 'Redes', label: 'Redes' },
-              { value: 'Investigación', label: 'Investigación' },
-            ]}
+            options={PROJECT_CATEGORIES.map((cat) => ({
+              value: cat,
+              label: cat,
+            }))}
           />
           <Input
             label="Año *"

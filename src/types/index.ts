@@ -48,6 +48,17 @@ export interface Skill {
   sort_order: number;
 }
 
+export const PROJECT_CATEGORIES = [
+  'Full Stack',
+  'Frontend',
+  'Backend',
+  'IA',
+  'Automatización',
+  'IA / Automatización',
+] as const;
+
+export type ProjectCategory = typeof PROJECT_CATEGORIES[number] | string;
+
 export interface Project {
   id: string;
   title: string;
@@ -60,7 +71,7 @@ export interface Project {
   year: string;
   organization?: string | null;
   location?: string | null;
-  category: 'Full Stack' | 'IA' | 'Automatización' | 'IA / Automatización' | 'IoT' | 'Redes' | 'Investigación';
+  category: ProjectCategory;
   technologies: string[];
   main_image_url?: string | null;
   gallery_images?: string[];

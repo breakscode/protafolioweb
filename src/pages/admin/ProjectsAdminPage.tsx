@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { AdminHeader } from '../../components/admin/AdminHeader';
 import { projectsService } from '../../services/projectsService';
-import { Project } from '../../types';
+import { Project, PROJECT_CATEGORIES } from '../../types';
 import { ProjectFormModal } from './ProjectFormModal';
 import { ConfirmDialog } from '../../components/admin/ConfirmDialog';
 import { Button } from '../../components/ui/Button';
@@ -151,19 +151,16 @@ export const ProjectsAdminPage: React.FC = () => {
             />
           </div>
 
-          <div className="w-full sm:w-48">
+          <div className="w-full sm:w-56">
             <Select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               options={[
                 { value: 'all', label: 'Todas las categorías' },
-                { value: 'Full Stack', label: 'Full Stack' },
-                { value: 'IA', label: 'IA' },
-                { value: 'Automatización', label: 'Automatización' },
-                { value: 'IA / Automatización', label: 'IA / Automatización' },
-                { value: 'IoT', label: 'IoT' },
-                { value: 'Redes', label: 'Redes' },
-                { value: 'Investigación', label: 'Investigación' },
+                ...PROJECT_CATEGORIES.map((cat) => ({
+                  value: cat,
+                  label: cat,
+                })),
               ]}
             />
           </div>
