@@ -10,6 +10,7 @@ import { Certifications } from '../../components/public/Certifications';
 import { Education } from '../../components/public/Education';
 import { Contact } from '../../components/public/Contact';
 import { Footer } from '../../components/public/Footer';
+import { CyberBackground } from '../../components/public/CyberBackground';
 import { settingsService } from '../../services/settingsService';
 import { SiteSettings } from '../../types';
 import { Wrench } from 'lucide-react';
@@ -43,9 +44,10 @@ export const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 relative">
+      <CyberBackground />
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 relative z-10">
         <Hero />
         <About />
         <Skills />
@@ -56,7 +58,9 @@ export const HomePage: React.FC = () => {
         <Education />
         <Contact />
       </main>
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 };
