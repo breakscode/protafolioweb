@@ -9,6 +9,8 @@ interface AuthContextType {
   isMockAuth: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -99,8 +101,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(LOCAL_AUTH_KEY);
   };
 
+  const resetPasswordForEmail = async (email: string): Promise<{ error: Error | null }> => {
+    if (isSupabaseConfigured()) {
+      const redirectUrl = `${window.location.origin}/admin/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+      return { error: error as Error | null };
+    }
+
+    // Demo mode: simulate delay and success
+    await new Promise((res) => setTimeout(res, 500));
+    return { error: null };
+  };
+
+  const updatePassword = async (newPassword: string): Promise<{ error: Error | null }> => {
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+      return { error: error as Error | null };
+    }
+
+    // Demo mode
+    await new Promise((res) => setTimeout(res, 500));
+    return { error: null };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, isMockAuth, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        loading,
+        isMockAuth,
+        signIn,
+        signOut,
+        resetPasswordForEmail,
+        updatePassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

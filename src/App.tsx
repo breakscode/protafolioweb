@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage } from './pages/public/HomePage';
 import { LoginPage } from './pages/admin/LoginPage';
+import { ResetPasswordPage } from './pages/admin/ResetPasswordPage';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { DashboardPage } from './pages/admin/DashboardPage';
 import { ProfileAdminPage } from './pages/admin/ProfileAdminPage';
@@ -24,6 +25,8 @@ export function App() {
       {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/admin/login" element={<LoginPage />} />
+      <Route path="/admin/forgot-password" element={<LoginPage />} />
+      <Route path="/admin/reset-password" element={<ResetPasswordPage />} />
 
       {/* Admin Protected Routes */}
       <Route path="/admin" element={<AdminLayout />}>
