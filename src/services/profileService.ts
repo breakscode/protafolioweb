@@ -6,6 +6,16 @@ const LOCAL_STORAGE_KEY = 'portfolio_profile';
 
 export const profileService = {
   async getProfile(): Promise<Profile> {
+    const local = localStorage.getItem(LOCAL_STORAGE_KEY);
+    let localData: Partial<Profile> = {};
+    if (local) {
+      try {
+        localData = JSON.parse(local);
+      } catch {
+        // ignore error
+      }
+    }
+
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase
@@ -15,16 +25,24 @@ export const profileService = {
           .maybeSingle();
 
         if (error) throw error;
-        if (data) return data as Profile;
+        if (data) {
+          const merged: Profile = {
+            ...initialProfile,
+            ...localData,
+            ...data,
+            // Keep availability_text from Supabase if present, or local fallback
+            availability_text: data.availability_text ?? localData.availability_text ?? initialProfile.availability_text,
+          };
+          return merged;
+        }
       } catch (err) {
         console.warn('Error fetching profile from Supabase, falling back to local state:', err);
       }
     }
 
-    const local = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (local) {
       try {
-        return JSON.parse(local);
+        return { ...initialProfile, ...JSON.parse(local) };
       } catch {
         // ignore error
       }
@@ -33,16 +51,34 @@ export const profileService = {
   },
 
   async updateProfile(profile: Partial<Profile>): Promise<Profile> {
+    const current = await this.getProfile();
+    const updatedPayload = { ...current, ...profile, updated_at: new Date().toISOString() };
+
     if (isSupabaseConfigured()) {
       try {
-        const current = await this.getProfile();
         const { data, error } = await supabase
           .from('profiles')
-          .upsert({ ...current, ...profile, updated_at: new Date().toISOString() })
+          .upsert(updatedPayload)
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          // If availability_text column is not yet migrated in Supabase, strip it and upsert the rest
+          if (error.message?.includes('availability_text') || (error as any).code === '42703') {
+            const { availability_text, ...safePayload } = updatedPayload;
+            const { data: safeData } = await supabase
+              .from('profiles')
+              .upsert(safePayload)
+              .select()
+              .single();
+
+            const finalData = { ...(safeData || safePayload), availability_text: updatedPayload.availability_text };
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(finalData));
+            return finalData as Profile;
+          }
+          throw error;
+        }
+
         if (data) {
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
           return data as Profile;
@@ -53,9 +89,7 @@ export const profileService = {
       }
     }
 
-    const current = await this.getProfile();
-    const updated = { ...current, ...profile, updated_at: new Date().toISOString() };
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-    return updated as Profile;
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedPayload));
+    return updatedPayload as Profile;
   }
 };

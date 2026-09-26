@@ -18,6 +18,7 @@ export interface Profile {
   linkedin_url?: string | null;
   avatar_url?: string | null;
   status_text: string;
+  availability_text?: string | null;
   created_at?: string;
   updated_at?: string;
 }

@@ -25,6 +25,7 @@ export const initialProfile: Profile = {
   linkedin_url: '',
   avatar_url: '',
   status_text: 'Disponible para oportunidades como Software Developer / Full Stack Developer',
+  availability_text: 'Abierto a posiciones remotas o híbridas como Software Developer o Full Stack Developer. Interesado en proyectos desafiantes con tecnologías web modernas, arquitecturas escalables y soluciones con IA.',
 };
 
 export const initialHero: HeroData = {

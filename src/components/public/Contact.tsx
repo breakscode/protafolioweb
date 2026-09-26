@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { messagesService } from '../../services/messagesService';
+import { profileService } from '../../services/profileService';
+import { Profile } from '../../types';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
@@ -16,6 +18,7 @@ import {
 } from 'lucide-react';
 
 export const Contact: React.FC = () => {
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,6 +29,10 @@ export const Contact: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    profileService.getProfile().then(setProfile);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,8 +83,12 @@ export const Contact: React.FC = () => {
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-cyan-400" /> Disponibilidad Actual
               </h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                Abierto a posiciones remotas o híbridas como <strong>Software Developer</strong> o <strong>Full Stack Developer</strong>. Interesado en proyectos desafiantes con tecnologías web modernas, arquitecturas escalables y soluciones con IA.
+              <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-line">
+                {profile?.availability_text || (
+                  <>
+                    Abierto a posiciones remotas o híbridas como <strong>Software Developer</strong> o <strong>Full Stack Developer</strong>. Interesado en proyectos desafiantes con tecnologías web modernas, arquitecturas escalables y soluciones con IA.
+                  </>
+                )}
               </p>
 
               <div className="space-y-4 pt-4 border-t border-white/10">
@@ -87,7 +98,11 @@ export const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs text-slate-400 font-mono">Ubicación</p>
-                    <p className="text-sm font-semibold text-white">Piura, Perú (UTC-5)</p>
+                    <p className="text-sm font-semibold text-white">
+                      {profile?.location
+                        ? (profile.location.includes('UTC') ? profile.location : `${profile.location} (UTC-5)`)
+                        : 'Piura, Perú (UTC-5)'}
+                    </p>
                   </div>
                 </div>
 
@@ -98,12 +113,14 @@ export const Contact: React.FC = () => {
                   <div>
                     <p className="text-xs text-slate-400 font-mono">Repositorios</p>
                     <a
-                      href="https://github.com/breakscode"
+                      href={profile?.github_url || 'https://github.com/breakscode'}
                       target="_blank"
                       rel="noreferrer"
                       className="text-sm font-semibold text-cyan-400 hover:underline"
                     >
-                      github.com/breakscode
+                      {profile?.github_url
+                        ? profile.github_url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+                        : 'github.com/breakscode'}
                     </a>
                   </div>
                 </div>

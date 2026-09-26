@@ -164,12 +164,26 @@ export const ProfileAdminPage: React.FC = () => {
             />
           </div>
 
-          <Input
-            label="Texto de Disponibilidad (Badge Hero)"
-            value={profile.status_text}
-            onChange={(e) => setProfile({ ...profile, status_text: e.target.value })}
-            hint="Ej. Disponible para oportunidades como Software Developer (Remoto)"
-          />
+          <div className="pt-4 border-t border-white/10 space-y-4">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-cyan-400" /> Disponibilidad y Estado Profesional
+            </h3>
+
+            <Input
+              label="Texto Breve de Disponibilidad (Badge en Hero)"
+              value={profile.status_text}
+              onChange={(e) => setProfile({ ...profile, status_text: e.target.value })}
+              hint="Ej. Disponible para oportunidades como Software Developer / Full Stack Developer"
+            />
+
+            <Textarea
+              label="Descripción de Disponibilidad Actual (Tarjeta en Contacto)"
+              rows={3}
+              value={profile.availability_text || ''}
+              onChange={(e) => setProfile({ ...profile, availability_text: e.target.value })}
+              hint="Texto detallado que se muestra en la tarjeta 'Disponibilidad Actual' en la sección de Contacto."
+            />
+          </div>
 
           <div className="pt-4 border-t border-white/10 flex justify-end">
             <Button

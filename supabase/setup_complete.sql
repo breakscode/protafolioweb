@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     linkedin_url TEXT,
     avatar_url TEXT,
     status_text TEXT DEFAULT 'Disponible para oportunidades remotas',
+    availability_text TEXT DEFAULT 'Abierto a posiciones remotas o híbridas como Software Developer o Full Stack Developer. Interesado en proyectos desafiantes con tecnologías web modernas, arquitecturas escalables y soluciones con IA.',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
