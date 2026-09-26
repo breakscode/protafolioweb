@@ -7,7 +7,8 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Textarea } from '../../components/ui/Textarea';
 import { ImageUploader } from '../../components/admin/ImageUploader';
-import { Save, CheckCircle2, User, Sparkles, MapPin, Mail, Github, Linkedin, Eye } from 'lucide-react';
+import { formatSocialUrl } from '../../lib/utils';
+import { Save, CheckCircle2, User, Sparkles, MapPin, Mail, Github, Linkedin, Eye, ExternalLink } from 'lucide-react';
 
 export const ProfileAdminPage: React.FC = () => {
   const { onToggleSidebar } = useOutletContext<{ onToggleSidebar: () => void }>();
@@ -154,14 +155,28 @@ export const ProfileAdminPage: React.FC = () => {
               onChange={(e) => setProfile({ ...profile, github_url: e.target.value })}
               leftIcon={<Github className="w-4 h-4" />}
             />
-            <Input
-              label="URL de LinkedIn"
-              placeholder="https://linkedin.com/in/tu-usuario"
-              value={profile.linkedin_url || ''}
-              onChange={(e) => setProfile({ ...profile, linkedin_url: e.target.value })}
-              leftIcon={<Linkedin className="w-4 h-4" />}
-              hint="Opcional. Configurar con tu enlace real."
-            />
+            <div className="space-y-1.5">
+              <Input
+                label="URL o Usuario de LinkedIn"
+                placeholder="https://linkedin.com/in/tu-usuario"
+                value={profile.linkedin_url || ''}
+                onChange={(e) => setProfile({ ...profile, linkedin_url: e.target.value })}
+                leftIcon={<Linkedin className="w-4 h-4" />}
+                hint="Ej. https://www.linkedin.com/in/jhampier o tu usuario directo."
+              />
+              {profile.linkedin_url && (
+                <div className="flex justify-end">
+                  <a
+                    href={formatSocialUrl(profile.linkedin_url, 'linkedin')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-cyan-400 hover:underline flex items-center gap-1 font-mono"
+                  >
+                    Probar enlace <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="pt-4 border-t border-white/10 space-y-4">

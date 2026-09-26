@@ -3,6 +3,7 @@ import { HeroData, Profile, DocumentItem } from '../../types';
 import { heroService } from '../../services/heroService';
 import { profileService } from '../../services/profileService';
 import { documentsService } from '../../services/documentsService';
+import { formatSocialUrl } from '../../lib/utils';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { 
@@ -121,28 +122,27 @@ export const Hero: React.FC = () => {
             <div className="pt-4 flex items-center gap-4">
               <span className="text-xs text-slate-400 font-mono uppercase tracking-wider">Enlaces:</span>
               <div className="flex items-center gap-2">
-                {profile?.github_url && (
-                  <a
-                    href={profile.github_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all duration-200"
-                    aria-label="GitHub de Jhampier"
-                  >
-                    <Github className="w-4 h-4" />
-                  </a>
-                )}
-                {profile?.linkedin_url && (
-                  <a
-                    href={profile.linkedin_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all duration-200"
-                    aria-label="LinkedIn de Jhampier"
-                  >
-                    <Linkedin className="w-4 h-4" />
-                  </a>
-                )}
+                <a
+                  href={formatSocialUrl(profile?.github_url, 'github') || 'https://github.com/breakscode'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all duration-200"
+                  aria-label="GitHub de Jhampier"
+                  title="Ver perfil de GitHub"
+                >
+                  <Github className="w-4 h-4" />
+                </a>
+
+                <a
+                  href={formatSocialUrl(profile?.linkedin_url, 'linkedin') || 'https://www.linkedin.com'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all duration-200"
+                  aria-label="LinkedIn de Jhampier"
+                  title={profile?.linkedin_url ? "Ver perfil de LinkedIn" : "LinkedIn (Configurable en Admin / Perfil)"}
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
               </div>
               {profile?.status_text && (
                 <span className="text-xs text-emerald-400/90 font-mono flex items-center gap-1.5 pl-2 border-l border-white/10">

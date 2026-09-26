@@ -44,3 +44,29 @@ export function formatFileSize(bytes?: number | null): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 }
+
+export function formatSocialUrl(url?: string | null, platform: 'linkedin' | 'github' = 'linkedin'): string {
+  if (!url) return '';
+  let trimmed = url.trim();
+  if (!trimmed || trimmed === '#') return '';
+
+  if (trimmed.startsWith('@')) {
+    trimmed = trimmed.substring(1);
+  }
+
+  if (platform === 'linkedin') {
+    if (!trimmed.includes('linkedin.com')) {
+      return `https://www.linkedin.com/in/${trimmed}`;
+    }
+  } else if (platform === 'github') {
+    if (!trimmed.includes('github.com')) {
+      return `https://github.com/${trimmed}`;
+    }
+  }
+
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+
+  return trimmed;
+}

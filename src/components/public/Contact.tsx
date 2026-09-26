@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { messagesService } from '../../services/messagesService';
 import { profileService } from '../../services/profileService';
 import { Profile } from '../../types';
+import { formatSocialUrl } from '../../lib/utils';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
@@ -113,9 +114,9 @@ export const Contact: React.FC = () => {
                   <div>
                     <p className="text-xs text-slate-400 font-mono">Repositorios</p>
                     <a
-                      href={profile?.github_url || 'https://github.com/breakscode'}
+                      href={formatSocialUrl(profile?.github_url, 'github') || 'https://github.com/breakscode'}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="text-sm font-semibold text-cyan-400 hover:underline"
                     >
                       {profile?.github_url
@@ -124,6 +125,25 @@ export const Contact: React.FC = () => {
                     </a>
                   </div>
                 </div>
+
+                {profile?.linkedin_url && (
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                      <Linkedin className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400 font-mono">LinkedIn</p>
+                      <a
+                        href={formatSocialUrl(profile.linkedin_url, 'linkedin')}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold text-cyan-400 hover:underline"
+                      >
+                        {profile.linkedin_url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

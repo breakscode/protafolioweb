@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { SiteSettings } from '../../types';
+import { SiteSettings, Profile } from '../../types';
 import { settingsService } from '../../services/settingsService';
+import { profileService } from '../../services/profileService';
+import { formatSocialUrl } from '../../lib/utils';
 import { Terminal, Github, Linkedin, ArrowUp } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     settingsService.getSettings().then(setSettings);
+    profileService.getProfile().then(setProfile);
   }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const githubUrl = formatSocialUrl(profile?.github_url || settings?.github_url, 'github') || 'https://github.com/breakscode';
+  const rawLinkedin = profile?.linkedin_url || settings?.linkedin_url;
+  const linkedinUrl = formatSocialUrl(rawLinkedin, 'linkedin') || 'https://www.linkedin.com';
 
   return (
     <footer className="py-12 border-t border-white/10 bg-slate-950/80 text-slate-400">
@@ -39,28 +47,27 @@ export const Footer: React.FC = () => {
 
           {/* Social and back to top */}
           <div className="flex items-center gap-4">
-            {settings?.github_url && (
-              <a
-                href={settings.github_url}
-                target="_blank"
-                rel="noreferrer"
-                className="p-2 rounded-xl bg-slate-900 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-colors"
-                aria-label="GitHub"
-              >
-                <Github className="w-4 h-4" />
-              </a>
-            )}
-            {settings?.linkedin_url && (
-              <a
-                href={settings.linkedin_url}
-                target="_blank"
-                rel="noreferrer"
-                className="p-2 rounded-xl bg-slate-900 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
-            )}
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-xl bg-slate-900 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-colors"
+              aria-label="GitHub"
+              title="GitHub"
+            >
+              <Github className="w-4 h-4" />
+            </a>
+
+            <a
+              href={linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-xl bg-slate-900 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-colors"
+              aria-label="LinkedIn"
+              title="LinkedIn"
+            >
+              <Linkedin className="w-4 h-4" />
+            </a>
             <button
               onClick={scrollToTop}
               className="p-2 rounded-xl bg-slate-900 border border-white/10 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-colors"
