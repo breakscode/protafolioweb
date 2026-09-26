@@ -46,9 +46,8 @@ export const Hero: React.FC = () => {
   return (
     <section id="hero" className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-hidden">
       {/* Background ambient lighting */}
-      <div className="ambient-glow w-96 h-96 bg-cyan-500/10 -top-10 -left-20" />
-      <div className="ambient-glow w-96 h-96 bg-indigo-500/10 top-1/2 -right-20" />
-      <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
+      <div className="ambient-glow w-96 h-96 bg-cyan-500/5 -top-10 -left-20" />
+      <div className="ambient-glow w-96 h-96 bg-indigo-500/5 top-1/2 -right-20" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -120,7 +119,7 @@ export const Hero: React.FC = () => {
 
             {/* Social Links & Trust */}
             <div className="pt-4 flex items-center gap-4">
-              <span className="text-xs text-slate-400 font-mono uppercase tracking-wider">Enlaces:</span>
+              <span className="text-xs text-slate-400 font-mono">Redes:</span>
               <div className="flex items-center gap-2">
                 <a
                   href={formatSocialUrl(profile?.github_url, 'github') || 'https://github.com/breakscode'}

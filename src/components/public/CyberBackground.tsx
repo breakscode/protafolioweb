@@ -7,9 +7,13 @@ export const CyberBackground: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl', { powerPreference: 'high-performance', alpha: false }) || 
-               canvas.getContext('experimental-webgl', { powerPreference: 'high-performance', alpha: false }) as WebGLRenderingContext | null;
-    
+    const gl =
+      canvas.getContext('webgl', { powerPreference: 'high-performance', alpha: false }) ||
+      (canvas.getContext('experimental-webgl', {
+        powerPreference: 'high-performance',
+        alpha: false,
+      }) as WebGLRenderingContext | null);
+
     if (!gl) return;
 
     let animationFrameId: number;
@@ -25,9 +29,8 @@ export const CyberBackground: React.FC = () => {
       }
     }
 
-    const resizeObserver = typeof ResizeObserver !== 'undefined'
-      ? new ResizeObserver(syncSize)
-      : null;
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(syncSize) : null;
 
     if (resizeObserver) {
       resizeObserver.observe(canvas);
@@ -44,9 +47,10 @@ void main() {
     const fs = `precision highp float;
 uniform float u_time;
 uniform vec2 u_resolution;
-uniform vec2 u_mouse;
+uniform vec2 u_click_pos;
+uniform float u_click_progress;
 
-// Random hash functions
+// Pseudo-random hash
 float hash(vec2 p) {
     p = fract(p * vec2(123.34, 456.21));
     p += dot(p, p + 45.32);
@@ -58,33 +62,29 @@ float hash1(float n) {
 }
 
 void main() {
-    // Aspect-corrected UV space centered
+    // Aspect-corrected centered coordinates
     vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
-    float t = u_time * 0.85;
-
-    // Mouse interaction vector
-    vec2 mouseNorm = (u_mouse - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
-    float mouseDist = length(uv - mouseNorm);
+    float t = u_time * 0.45; // Calmer, smoother tempo
 
     // Deep high-tech cyber background: deep dark slate & midnight obsidian
-    vec3 col = mix(vec3(0.01, 0.02, 0.04), vec3(0.003, 0.007, 0.015), length(uv) * 0.8);
+    vec3 col = mix(vec3(0.008, 0.015, 0.03), vec3(0.002, 0.005, 0.01), length(uv) * 0.9);
 
-    // Subtle isometric/tech perspective grid on the floor
+    // Subtle isometric/tech perspective grid on the floor (softer intensity)
     vec2 gridUv = uv;
     gridUv.y += 0.45;
     float pGrid = 0.35 / (abs(gridUv.y) + 0.12);
-    vec2 pCoord = vec2(gridUv.x * pGrid, pGrid + t * 0.4);
+    vec2 pCoord = vec2(gridUv.x * pGrid, pGrid + t * 0.25);
     vec2 fGrid = abs(fract(pCoord * 4.0) - 0.5);
-    float gridLines = smoothstep(0.46, 0.5, max(fGrid.x, fGrid.y));
-    col += vec3(0.02, 0.08, 0.16) * (1.0 - gridLines) * smoothstep(0.0, -0.6, uv.y) * 0.4;
+    float gridLines = smoothstep(0.47, 0.5, max(fGrid.x, fGrid.y));
+    col += vec3(0.015, 0.05, 0.12) * (1.0 - gridLines) * smoothstep(0.0, -0.6, uv.y) * 0.25;
 
     // -------------------------------------------------------------------
-    // 1. DIGITAL MATRIX / TERMINAL CODE STREAM (Cyber Hacker Rain)
+    // 1. DIGITAL MATRIX / TERMINAL CODE STREAM (Subtle, non-distracting)
     // -------------------------------------------------------------------
-    float cols = 48.0;
-    vec2 rainUv = uv * vec2(cols, cols * 0.6);
+    float cols = 36.0; // Less dense, more breathing space
+    vec2 rainUv = uv * vec2(cols, cols * 0.5);
     float colIndex = floor(rainUv.x);
-    float colSpeed = mix(1.2, 3.2, hash1(colIndex * 33.1));
+    float colSpeed = mix(0.7, 1.8, hash1(colIndex * 33.1));
     float rainOffset = t * colSpeed + hash1(colIndex * 71.9) * 20.0;
     
     float charIndex = floor(rainUv.y + rainOffset);
@@ -94,81 +94,90 @@ void main() {
     float glyphHash = hash(vec2(colIndex, charIndex));
     float glyphShape = step(0.12, abs(charCell.x)) * step(0.15, abs(charCell.y));
     float glyphCross = step(0.35, min(abs(charCell.x), abs(charCell.y)));
-    float charMask = (1.0 - glyphCross) * (glyphHash > 0.3 ? 1.0 : 0.0);
+    float charMask = (1.0 - glyphCross) * (glyphHash > 0.4 ? 1.0 : 0.0);
 
     // Rain drop head glow & fading tail
     float dropProgress = fract((rainUv.y + rainOffset) * 0.08);
-    float tail = pow(1.0 - dropProgress, 3.5);
-    float head = smoothstep(0.96, 1.0, 1.0 - dropProgress) * 3.0;
+    float tail = pow(1.0 - dropProgress, 4.0);
+    float head = smoothstep(0.96, 1.0, 1.0 - dropProgress) * 2.0;
 
-    // Hacker / Cyberpunk phosphor emerald & electric cyan palette
-    vec3 matrixGreen = vec3(0.05, 0.95, 0.45);
-    vec3 matrixCyan = vec3(0.0, 0.82, 0.98);
+    // Ambient palette: subdued cyan & muted emerald
+    vec3 matrixGreen = vec3(0.03, 0.75, 0.40);
+    vec3 matrixCyan = vec3(0.0, 0.65, 0.85);
     vec3 charCol = mix(matrixGreen, matrixCyan, sin(colIndex * 0.2 + t) * 0.5 + 0.5);
 
-    col += charCol * charMask * (tail * 0.35 + head * 0.85) * 0.38;
+    // Reduced brightness multiplier from 0.38 to 0.15 for atmospheric balance
+    col += charCol * charMask * (tail * 0.22 + head * 0.55) * 0.15;
 
     // -------------------------------------------------------------------
-    // 2. CYBER CIRCUIT BUSES & DATA PACKETS (Hardware & Architecture)
+    // 2. CYBER CIRCUIT BUSES & DATA PACKETS (Delicate architectural lines)
     // -------------------------------------------------------------------
-    vec2 circuitUv = uv * 6.0;
+    vec2 circuitUv = uv * 5.5;
     vec2 cId = floor(circuitUv);
     vec2 cF = fract(circuitUv) - 0.5;
     
-    // Diagonal & orthogonal circuit tracks
-    float circuitH = abs(cF.y) - 0.015;
-    float circuitV = abs(cF.x) - 0.015;
-    float circuitDiag = abs(abs(cF.x) - abs(cF.y)) - 0.02;
+    float circuitH = abs(cF.y) - 0.012;
+    float circuitV = abs(cF.x) - 0.012;
+    float circuitDiag = abs(abs(cF.x) - abs(cF.y)) - 0.016;
     float circuitTrace = min(min(circuitH, circuitV), circuitDiag);
-    float traceLine = smoothstep(0.025, 0.005, circuitTrace);
+    float traceLine = smoothstep(0.02, 0.004, circuitTrace);
     
-    // Nodes at intersections
-    float nodeDot = smoothstep(0.12, 0.04, length(cF));
-    float activeNode = step(0.7, hash(cId));
+    float nodeDot = smoothstep(0.1, 0.03, length(cF));
+    float activeNode = step(0.75, hash(cId));
 
-    col += vec3(0.04, 0.25, 0.45) * traceLine * 0.12;
-    col += vec3(0.0, 0.65, 0.95) * nodeDot * activeNode * 0.25;
+    col += vec3(0.02, 0.15, 0.32) * traceLine * 0.07;
+    col += vec3(0.0, 0.50, 0.80) * nodeDot * activeNode * 0.12;
 
-    // High-speed light packets racing along the tracks
-    float packetPhase = fract(t * 1.5 + hash(cId) * 5.0);
+    // Gentle light packets
+    float packetPhase = fract(t * 1.0 + hash(cId) * 5.0);
     vec2 packetPos = vec2(packetPhase - 0.5, 0.0);
-    float packet = smoothstep(0.08, 0.0, length(cF - packetPos)) * activeNode;
-    col += vec3(0.3, 0.95, 1.0) * packet * 0.6;
+    float packet = smoothstep(0.07, 0.0, length(cF - packetPos)) * activeNode;
+    col += vec3(0.2, 0.8, 0.95) * packet * 0.25;
 
     // -------------------------------------------------------------------
-    // 3. FLOATING NEON DATA PARTICLES / CYBERNETIC MESH
+    // 3. FLOATING NEON PARTICLES (Reduced count and glow)
     // -------------------------------------------------------------------
-    for (int i = 0; i < 18; i++) {
+    for (int i = 0; i < 9; i++) {
         float fi = float(i);
-        float pSpeed = mix(0.15, 0.4, hash1(fi * 12.3));
+        float pSpeed = mix(0.1, 0.25, hash1(fi * 12.3));
         vec2 pPos = vec2(
             sin(t * pSpeed + fi * 1.6) * 0.8,
             cos(t * (pSpeed * 0.8) + fi * 2.1) * 0.55
         );
         float pDist = length(uv - pPos);
-        float pGlow = 0.006 / (pDist + 0.012);
+        float pGlow = 0.004 / (pDist + 0.015);
         
-        vec3 pColor = mix(vec3(0.0, 0.85, 1.0), vec3(0.65, 0.2, 0.98), sin(fi + t) * 0.5 + 0.5);
-        col += pColor * pGlow * 0.22;
+        vec3 pColor = mix(vec3(0.0, 0.70, 0.9), vec3(0.5, 0.15, 0.8), sin(fi + t) * 0.5 + 0.5);
+        col += pColor * pGlow * 0.09;
     }
 
     // -------------------------------------------------------------------
-    // 4. MOUSE REACTIVE GRAVITATIONAL PULSE (Interactive Tech Resonance)
+    // 4. CLICK-ONLY SHOCKWAVE / EXPANDING PULSE (Solo al hacer clic)
     // -------------------------------------------------------------------
-    float mouseRing = abs(mouseDist - fract(t * 0.8) * 0.6);
-    float shockwave = smoothstep(0.06, 0.0, mouseRing) * smoothstep(0.6, 0.0, mouseDist);
-    col += vec3(0.1, 0.7, 1.0) * shockwave * 0.5;
+    if (u_click_progress < 1.0) {
+        float clickDist = length(uv - u_click_pos);
+        float waveRadius = u_click_progress * 1.1;
+        float ringWidth = 0.035;
+        float waveRing = smoothstep(ringWidth, 0.0, abs(clickDist - waveRadius));
+        float waveFade = (1.0 - u_click_progress) * (1.0 - u_click_progress);
+        
+        // High-tech electric cyan wave that expands and dissolves
+        vec3 waveColor = mix(vec3(0.0, 0.9, 1.0), vec3(0.1, 0.95, 0.5), u_click_progress);
+        col += waveColor * waveRing * waveFade * 0.8;
 
-    float mouseAura = 0.035 / (mouseDist + 0.16);
-    col += vec3(0.0, 0.85, 0.9) * mouseAura * 0.4;
+        // Subtle initial focal spark at click point
+        float centerSpark = smoothstep(0.12, 0.0, clickDist) * smoothstep(0.25, 0.0, u_click_progress);
+        col += vec3(0.2, 0.85, 1.0) * centerSpark * 0.45;
+    }
 
     // -------------------------------------------------------------------
-    // 5. CRT / HUD SCANLINE & EDGE VIGNETTE
+    // 5. SCANLINE & CENTER VIGNETTE (Keeps reading area dark & clear)
     // -------------------------------------------------------------------
-    float scanline = sin(gl_FragCoord.y * 1.8) * 0.04;
+    float scanline = sin(gl_FragCoord.y * 1.8) * 0.025;
     col -= scanline;
 
-    float vignette = smoothstep(1.35, 0.45, length(uv));
+    // Deeper vignette so the center/text is ultra legible
+    float vignette = smoothstep(1.3, 0.35, length(uv));
     col *= vignette;
 
     gl_FragColor = vec4(col, 1.0);
@@ -218,22 +227,28 @@ void main() {
 
     const uTime = gl.getUniformLocation(prog, 'u_time');
     const uRes = gl.getUniformLocation(prog, 'u_resolution');
-    const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+    const uClickPos = gl.getUniformLocation(prog, 'u_click_pos');
+    const uClickProgress = gl.getUniformLocation(prog, 'u_click_progress');
 
-    const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    // Click tracking state
+    const clickPos = { x: 0.0, y: 0.0 };
+    let clickStartTime = -999.0;
+    const CLICK_DURATION = 0.85; // 850ms duration for expansion and fade
 
-    const handleMouseMove = (event: MouseEvent) => {
+    const handlePointerDown = (event: PointerEvent) => {
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
       if (rect.width && rect.height) {
-        const nx = (event.clientX - rect.left) / rect.width;
-        const ny = 1.0 - (event.clientY - rect.top) / rect.height;
-        mouse.x = nx * canvas.width;
-        mouse.y = ny * canvas.height;
+        const minDim = Math.min(rect.width, rect.height);
+        const px = event.clientX - rect.left;
+        const py = rect.height - (event.clientY - rect.top); // WebGL Y is inverted
+        clickPos.x = (px - 0.5 * rect.width) / minDim;
+        clickPos.y = (py - 0.5 * rect.height) / minDim;
+        clickStartTime = performance.now() * 0.001;
       }
     };
 
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true });
 
     let isRunning = true;
     function render(t: number) {
@@ -241,9 +256,20 @@ void main() {
       if (!resizeObserver) syncSize();
 
       gl.viewport(0, 0, canvas.width, canvas.height);
-      if (uTime) gl.uniform1f(uTime, t * 0.001);
+      const currentTime = t * 0.001;
+
+      if (uTime) gl.uniform1f(uTime, currentTime);
       if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
-      if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+
+      let progress = 1.0;
+      if (clickStartTime > 0) {
+        const elapsed = currentTime - clickStartTime;
+        progress = Math.min(Math.max(elapsed / CLICK_DURATION, 0.0), 1.0);
+      }
+
+      if (uClickPos) gl.uniform2f(uClickPos, clickPos.x, clickPos.y);
+      if (uClickProgress) gl.uniform1f(uClickProgress, progress);
+
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
       animationFrameId = requestAnimationFrame(render);
@@ -254,7 +280,7 @@ void main() {
     return () => {
       isRunning = false;
       cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('pointerdown', handlePointerDown);
       if (resizeObserver) resizeObserver.disconnect();
       if (gl) {
         gl.deleteBuffer(buf);
@@ -272,7 +298,7 @@ void main() {
     >
       <canvas
         ref={canvasRef}
-        className="w-full h-full block opacity-90 transition-opacity duration-1000"
+        className="w-full h-full block opacity-75 transition-opacity duration-1000"
       />
     </div>
   );
